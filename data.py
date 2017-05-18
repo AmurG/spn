@@ -4,6 +4,7 @@ import scipy
 import networkx as nx
 from scipy.stats import multivariate_normal as mn
 import matplotlib.pyplot as plt
+import scipy.cluster.hierarchy as hcluster
 
 def submat(mat,subset):
 	q = len(subset)
@@ -28,7 +29,7 @@ def submean(mean,subset):
 		w=w+1
 	return m
 
-k = 5
+k = 3
 
 cov = np.zeros(k*k)
 cov = np.reshape(cov,(k,k))
@@ -51,7 +52,14 @@ mean = np.random.uniform(-1,1,k)
 
 ref = mn(mean=mean,cov=cov)
 
-gen = np.random.multivariate_normal(mean,cov,10000)
+gen = np.random.multivariate_normal(mean,cov,100)
+
+data = np.transpose(gen)
+
+thresh = 10
+clusters = hcluster.fclusterdata(data, thresh, criterion="distance")
+
+print(len(set(clusters)))
 
 #print(np.shape(gen))
 
@@ -92,9 +100,9 @@ for i in range(0,len(Dec)):
 	subpdf = []
 	for j in (Dec[i]):
 		m = submean(mean,j)
-		print(m)
+		#print(m)
 		c = submat(estcov2,j)
-		print(c)
+		#print(c)
 		subpdf.append(mn(mean=m,cov=c))
 	PDF.append(subpdf)
 	print(PDF)
@@ -122,11 +130,11 @@ def comppdf(x):
 		pd = 1
 		for j in range(0,i+1):
 			fix = PDF[i][j]
-			print(Dec[i][j])
+			#print(Dec[i][j])
 			pd = pd*(fix.pdf(submean(x,Dec[i][j])))
-			print(pd)
+			#print(pd)
 		pdf = pdf + pd*wt
-		print(pdf)
+		#print(pdf)
 	return pdf
 
 samples = np.random.multivariate_normal(mean,estcov2,1000)
