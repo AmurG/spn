@@ -6,6 +6,31 @@ from scipy.stats import multivariate_normal as mn
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hcluster
 
+#gen = np.random.multivariate_normal(mean,cov,10)
+
+#print((gen))
+#print(np.shape((gen)))
+
+def split(arr):
+	thresh = 1.5
+	clusters = hcluster.fclusterdata(arr, thresh, criterion="distance")
+	print(clusters)
+	big = []
+	for i in range(0,len(set(clusters))):
+		small = []
+		for j in range(0,len(arr)):
+			if (clusters[j]==i+1):
+				small.append(arr[j,:])
+		big.append(small)
+		#print(big)
+	return big
+	
+#test = split((gen))
+
+#print(test)
+#print(len(test))
+
+
 def submat(mat,subset):
 	q = len(subset)
 	print(q)
@@ -29,7 +54,7 @@ def submean(mean,subset):
 		w=w+1
 	return m
 
-k = 3
+k = 10
 
 cov = np.zeros(k*k)
 cov = np.reshape(cov,(k,k))
@@ -52,19 +77,26 @@ mean = np.random.uniform(-1,1,k)
 
 ref = mn(mean=mean,cov=cov)
 
-gen = np.random.multivariate_normal(mean,cov,100)
-
-data = np.transpose(gen)
-
-thresh = 10
-clusters = hcluster.fclusterdata(data, thresh, criterion="distance")
-
-print(len(set(clusters)))
+#print(np.shape(data))
 
 #print(np.shape(gen))
 
+gen = []
+for i in range(0,1000):
+	gen.append(np.random.multivariate_normal(-mean,cov))
+for i in range(1000,2000):
+	gen.append(np.random.multivariate_normal(-7*mean,cov))
+for i in range(2000,3000):
+	gen.append(np.random.multivariate_normal(11*mean,cov))
+
+gen = np.asarray(gen)
+
+data = np.transpose(gen)
+
 estcov = np.corrcoef(np.transpose(gen))
 estcov2 = np.cov(np.transpose(gen))
+
+print(np.shape(estcov))
 
 wts = np.zeros(k)
 
@@ -107,7 +139,7 @@ for i in range(0,len(Dec)):
 	PDF.append(subpdf)
 	print(PDF)
 
-wts[k-1] = 0.1
+wts[k-1] = 0.2
 
 run = 0
 
@@ -117,7 +149,7 @@ for i in range(0,k-1):
 	run = run+wts[i]
 
 for i in range(0,k-1):
-	wts[i] = (wts[i]/run)*0.9
+	wts[i] = (wts[i]/run)*0.8
 
 print(wts)
 print(len(PDF))
@@ -137,18 +169,37 @@ def comppdf(x):
 		#print(pdf)
 	return pdf
 
-samples = np.random.multivariate_normal(mean,estcov2,1000)
+#samples = np.random.multivariate_normal(mean,estcov2,1000)
 
-pdf1 = np.zeros(1000)
-pdf2 = np.zeros(1000)
-
+gen = []
 for i in range(0,1000):
-	pdf1[i] = ref.pdf(samples[i])
-	pdf2[i] = comppdf(samples[i])
+	gen.append(np.random.multivariate_normal(-mean,cov) + np.random.multivariate_normal(-0.00002*mean,cov))
+for i in range(1000,2000):
+	gen.append(np.random.multivariate_normal(-7*mean,cov)+ np.random.multivariate_normal(0.00001*mean,cov))
+for i in range(2000,3000):
+	gen.append(np.random.multivariate_normal(11*mean,cov)+ np.random.multivariate_normal(0.00001*mean,cov))
+
+samples = np.asarray(gen)
+
+pdf1 = np.zeros(3000)
+pdf2 = np.zeros(3000)
+
+ref = mn(mean=mean,cov=estcov2)
+
+corr = 0
+corr1 = 0
+
+for i in range(0,3000):
+	pdf1[i] = np.log(ref.pdf(samples[i]))
+	corr = corr + pdf1[i]
+	pdf2[i] = np.log(comppdf(samples[i]))
+	corr1 = corr1 + pdf2[i]
 
 plt.plot(pdf1)
 plt.plot(pdf2)
 plt.show()
+
+print(corr,corr1)
 
 
 

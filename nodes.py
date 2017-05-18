@@ -26,17 +26,15 @@ class sumNode(Node):
 	def __init__(self):
 		self.scope = []
 		self.children = []
-		self.wts = np.zeros(10)	
+		self.wts = []
 		self.parent = None
 		self.value = 0
 		self.det = []
 
 	
 	def setwts(self,arr):
-		j = 0
 		for i in arr:
-			self.wts[j] = i
-			j = j+1
+			self.wts.append(i)
 
 	def retval(self):
 		Rawval = 0
