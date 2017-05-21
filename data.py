@@ -106,25 +106,25 @@ G = nx.from_numpy_matrix(-abs(estcov))
 G = G.to_undirected()
 
 T=nx.minimum_spanning_tree(G)
+Order = np.asarray(T.edges(data='weight'))
+Order = Order[Order[:,2].argsort()]
 Dec = []
+Dec.append(list(nx.connected_components(T)))
 
 for i in range(0,k-1):
-	Order = np.asarray(T.edges(data='weight'))
-	Dec.append(list(nx.connected_components(T)))
 	print(np.shape(Order))
-	Order = Order[Order[:,2].argsort()]
 	sum = 0
 	for j in range(0,len(Order)):
 		sum = sum + Order[j,2]
 	wts[i] = sum
-	iter = len(Order)
 	print(Order)
-	idx = int(Order[len(Order)-1,0])
-	idx2 = int(Order[len(Order)-1,1])
+	idx = int(Order[len(Order)-i-1,0])
+	idx2 = int(Order[len(Order)-i-1,1])
 	print(idx,idx2)
 	T.remove_edge(idx,idx2)
+	Dec.append(list(nx.connected_components(T)))
 
-Dec.append(list(nx.connected_components(T)))
+
 PDF = []
 print(Dec)
 
