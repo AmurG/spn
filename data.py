@@ -102,7 +102,7 @@ wts = np.zeros(k)
 
 print(-estcov)
 
-G = nx.from_numpy_matrix(-estcov)
+G = nx.from_numpy_matrix(-abs(estcov))
 G = G.to_undirected()
 
 T=nx.minimum_spanning_tree(G)
