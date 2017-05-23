@@ -46,10 +46,21 @@ def returnarr(arr,scope):
 		q.append(te[i])
 	return set(q)
 
-def induce(idxst,idxend,maxsize,scope,indsize):
+def induce(tempdat,maxsize,scope,indsize,flag):
 	print("inducecall")
 	print(scope)
-	tempdat = operdat[idxst:idxend,:]
+	if (flag==0):
+		print(np.shape(tempdat))
+		tempdat = split(tempdat,0.7*np.sqrt(len(scope)))
+		print(np.shape(tempdat))
+		s = sumNode()
+		arr = np.zeros(len(tempdat))
+		for i in range(0,len(tempdat)):
+			arr[i] = len(tempdat[i])
+			print(arr)
+			s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
+		s.setwts(arr)
+		return s	
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
 	for i in range(0,len(tempdat)):
@@ -117,7 +128,7 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 				l.create(tempmean,tempcov)
 				p.children.append(l)
 			else:
-				p.children.append(induce(idxst,idxend,maxsize-1,sub,indsize))
+				p.children.append(induce(tempdat,maxsize-1,sub,indsize,1))
 		
 
 	return s
@@ -126,7 +137,7 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 
 s = set(xrange(k))
 
-Tst = induce(0,1000,5,s,3)
+Tst = induce(operdat,5,s,3,0)
 
 print(Tst)
 

@@ -11,8 +11,7 @@ import scipy.cluster.hierarchy as hcluster
 #print((gen))
 #print(np.shape((gen)))
 
-def split(arr):
-	thresh = 1.5
+def split(arr,thresh):
 	clusters = hcluster.fclusterdata(arr, thresh, criterion="distance")
 	print(clusters)
 	big = []
@@ -20,7 +19,7 @@ def split(arr):
 		small = []
 		for j in range(0,len(arr)):
 			if (clusters[j]==i+1):
-				small.append(arr[j,:])
+				small.append(arr[j])
 		big.append(small)
 		#print(big)
 	return big
