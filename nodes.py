@@ -67,20 +67,21 @@ class leafNode(Node):
 #test
 
 
-t1 = leafNode()
+t = leafNode()
 mean = [0, 0]
 cov = [[1, 0],[0,1]]
-t1.create(mean,cov)
-
-
-t2 = leafNode()
-mean = [1, 0]
-cov = [[1, -0.5],[-0.5,1]]
-t2.create(mean,cov)
+t.create(mean,cov)
 
 p = prodNode()
-p.children.append(t1)
-p.children.append(t2)
+p.children.append(t)
+
+
+t = leafNode()
+mean = [1, 0]
+cov = [[1, -0.5],[-0.5,1]]
+t.create(mean,cov)
+
+p.children.append(t)
 
 s = sumNode()
 s.setwts([1])

@@ -5,8 +5,8 @@ import networkx as nx
 from scipy.stats import multivariate_normal as mn
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hcluster
-import nodes
-import data
+from nodes import *
+from data import *
 
 k = 10
 
@@ -38,10 +38,17 @@ operdat = np.transpose(data)
 corrmat = np.corrcoef(data)
 covmat = np.cov(data)
 
-def induce(idx1,idx2,maxsize):
-	effdat = operdat[idx1:idx2]
+def induce(idxst,idxend,maxsize,scope,indsize):
+	tempdat = operdat[idxst:idxend,:]
+	effdat = np.zeros(len(tempdat)*len(scope))
+	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
+	for i in range(0,len(tempdat)):
+		temp = submean(tempdat[i],scope)
+		for j in range(0,len(scope)):
+			effdat[i][j] = temp[j]
 	effcorr = np.corrcoef(np.transpose(effdat))
 	effcov = np.cov(np.transpose(effdat))
+	empmean = np.mean(effdat,axis=0)
 
 	G = nx.from_numpy_matrix(-abs(estcov))
 	G = G.to_undirected()
@@ -54,7 +61,10 @@ def induce(idx1,idx2,maxsize):
 	wts = np.zeros(k)
 	Order = Order[Order[:,2].argsort()]
 	Dec = []
-	Dec.append(list(nx.connected_components(T)))
+	Gc = max(nx.connected_component_subgraphs(T), key=len)
+	n = Gc.number_of_nodes()
+	if(n<=maxsize):
+		Dec.append(list(nx.connected_components(T)))
 
 	for i in range(0,k-1):
 		sum = 0
@@ -64,21 +74,44 @@ def induce(idx1,idx2,maxsize):
 		idx = int(Order[len(Order)-i-1,0])
 		idx2 = int(Order[len(Order)-i-1,1])
 		T.remove_edge(idx,idx2)
-		Dec.append(list(nx.connected_components(T)))
+		Gc = max(nx.connected_component_subgraphs(T), key=len)
+		n = Gc.number_of_nodes()
+		if(n<=maxsize):
+			Dec.append(list(nx.connected_components(T)))
 
-
-	PDF = []
+	wts[k-1]=0.1
+	effwts = np.zeros(len(Dec))
 	for i in range(0,len(Dec)):
-		subpdf = []
-		for j in (Dec[i]):
-			m = submean(mean,j)
-			#print(m)
-			c = submat(estcov2,j)
-			#print(c)
-			subpdf.append(mn(mean=m,cov=c))
-		PDF.append(subpdf)
+		effwts[i] = wts[i+k-len(Dec)]
 
-	
+	s = sumNode()
+	s.setwts(effwts)
+
+	print(Dec)
+
+	for i in range(0,len(Dec)):
+		p = prodNode()
+		s.children.append(p)
+		for j in (Dec[i]):
+			if (len(j)<=indsize):
+				l = leafNode()
+				tempmean = submean(empmean,j)
+				tempcov = submat(effcov,j)
+				l.create(tempmean,tempcov)
+				p.children.append(l)
+			else:
+				p.children.append(induce(idxst,idxend,maxsize-1,j,indsize))
+		
+
+	return s
+
+#test
+
+s = set(xrange(10))
+
+Tst = induce(0,1000,7,s,3)
+
+print(Tst)
 
 
 
