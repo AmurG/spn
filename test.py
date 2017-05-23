@@ -22,4 +22,10 @@ print(s.children)
 
 print(set(xrange(10)))
 
+test = Node()
+test.scope = set(xrange(5))
+print(test.scope)
+
+
+
 

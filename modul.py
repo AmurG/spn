@@ -8,7 +8,7 @@ import scipy.cluster.hierarchy as hcluster
 from nodes import *
 from data import *
 
-k = 10
+k = 7
 
 cov = np.zeros(k*k)
 cov = np.reshape(cov,(k,k))
@@ -38,7 +38,17 @@ operdat = np.transpose(data)
 corrmat = np.corrcoef(data)
 covmat = np.cov(data)
 
+def returnarr(arr,scope):
+	q = []
+	te = list(scope)
+	te = sorted(te)
+	for i in arr:
+		q.append(te[i])
+	return set(q)
+
 def induce(idxst,idxend,maxsize,scope,indsize):
+	print("inducecall")
+	print(scope)
 	tempdat = operdat[idxst:idxend,:]
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
@@ -48,9 +58,12 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 			effdat[i][j] = temp[j]
 	effcorr = np.corrcoef(np.transpose(effdat))
 	effcov = np.cov(np.transpose(effdat))
+	print(np.shape(effcorr))
+	print(np.shape(effcov))
 	empmean = np.mean(effdat,axis=0)
+	print(np.shape(empmean))
 
-	G = nx.from_numpy_matrix(-abs(estcov))
+	G = nx.from_numpy_matrix(-abs(effcorr))
 	G = G.to_undirected()
 
 	Dec = []
@@ -66,7 +79,7 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 	if(n<=maxsize):
 		Dec.append(list(nx.connected_components(T)))
 
-	for i in range(0,k-1):
+	for i in range(0,k):
 		sum = 0
 		for j in range(0,len(Order)):
 			sum = sum + Order[j,2]
@@ -79,7 +92,7 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 		if(n<=maxsize):
 			Dec.append(list(nx.connected_components(T)))
 
-	wts[k-1]=0.1
+	#wts[k-1]=0.1
 	effwts = np.zeros(len(Dec))
 	for i in range(0,len(Dec)):
 		effwts[i] = wts[i+k-len(Dec)]
@@ -93,25 +106,35 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 		p = prodNode()
 		s.children.append(p)
 		for j in (Dec[i]):
+			print(j)
+			sub = returnarr(j,scope)
+			print(sub)
 			if (len(j)<=indsize):
 				l = leafNode()
 				tempmean = submean(empmean,j)
 				tempcov = submat(effcov,j)
+				l.scope = sub
 				l.create(tempmean,tempcov)
 				p.children.append(l)
 			else:
-				p.children.append(induce(idxst,idxend,maxsize-1,j,indsize))
+				p.children.append(induce(idxst,idxend,maxsize-1,sub,indsize))
 		
 
 	return s
 
 #test
 
-s = set(xrange(10))
+s = set(xrange(k))
 
-Tst = induce(0,1000,7,s,3)
+Tst = induce(0,1000,5,s,3)
 
 print(Tst)
+
+Tst.passon(mean)
+print(Tst.retval())
+
+ref = mn(mean=mean,cov=cov)
+print(ref.logpdf(mean))
 
 
 

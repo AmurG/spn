@@ -1,16 +1,16 @@
 import numpy as np
+from data import *
 from scipy.stats import multivariate_normal as mn
 
 class Node:
 	def __init__(self):
-		self.scope = []
+		self.scope = set()
 		self.children = []
 		self.parent = None
 		self.value = 0
 		self.det = []
 	
 	def passon(self,arr):
-		self.det = arr
 		for i in self.children:
 			i.passon(arr)		
 
@@ -39,22 +39,25 @@ class sumNode(Node):
 	def retval(self):
 		Rawval = 0
 		j = 0
+		sum = 0
 		for i in self.children:
 			Rawval = Rawval + (self.wts[j])*(np.exp(i.retval()))
+			sum = sum + self.wts[j]
 			j = j+1
-		self.value = np.log(Rawval)
+		self.value = np.log(float(Rawval)/float(sum))
 		return (self.value)
 
 class leafNode(Node):
 	def __init__(self):
 		self.value = 0
 		self.flag = 1
+		self.scope = []
 		
 	def create(self,mean,cov):
 		self.pdf = mn(mean=mean,cov=cov)
 
 	def setval(self,val):
-		self.value = self.pdf.logpdf(val)
+		self.value = self.pdf.logpdf(submean(val,self.scope))
 
 	def passon(self,arr):
 		self.setval(arr)
@@ -66,7 +69,7 @@ class leafNode(Node):
 
 #test
 
-
+'''
 t = leafNode()
 mean = [0, 0]
 cov = [[1, 0],[0,1]]
@@ -89,6 +92,6 @@ s.children.append(p)
 
 s.passon([1, 0])
 print(s.retval())
-
+'''
 
 
