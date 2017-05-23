@@ -81,8 +81,8 @@ def induce(idxst,idxend,maxsize,scope,indsize):
 
 	for i in range(0,k):
 		sum = 0
-		for j in range(0,len(Order)):
-			sum = sum + Order[j,2]
+		for j in range(0,len(Order)-i):
+			sum = sum - Order[j,2]
 		wts[i] = sum
 		idx = int(Order[len(Order)-i-1,0])
 		idx2 = int(Order[len(Order)-i-1,1])
@@ -132,8 +132,9 @@ print(Tst)
 
 Tst.passon(mean)
 print(Tst.retval())
+print(Tst.wts)
 
-ref = mn(mean=mean,cov=cov)
+ref = mn(mean=mean,cov=covmat)
 print(ref.logpdf(mean))
 
 
