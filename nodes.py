@@ -41,10 +41,10 @@ class sumNode(Node):
 		j = 0
 		sum = 0
 		for i in self.children:
-			Rawval = Rawval + (self.wts[j])*(np.exp(i.retval()))
+			Rawval = Rawval + float((self.wts[j])*(np.exp(i.retval())))
 			sum = sum + self.wts[j]
 			j = j+1
-		self.value = np.log(float(Rawval)/float(sum))
+		self.value = np.log(float(Rawval)/float(sum) + 1e-7)
 		return (self.value)
 
 class leafNode(Node):

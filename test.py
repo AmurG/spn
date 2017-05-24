@@ -27,14 +27,16 @@ test = Node()
 test.scope = set(xrange(5))
 print(test.scope)
 
+'''
 data = ([1,0,1],[2,0,0],[3,2,4],[2,2,7],[10,10,10])
 data = split(data,1.5)
 print(data)
 print(np.shape(data))
 print(np.shape(data[0]))
 print(np.shape(np.asarray(data[0])))
+'''
 
-ab = np.genfromtxt('AB.dat',delimiter=",")
+ab = np.genfromtxt('CA.dat',delimiter=",")
 print(ab)
 print(np.shape(ab))
 

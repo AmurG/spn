@@ -56,15 +56,21 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	if (flag==0):
 		if (full>=5*len(scope)):
 			print(np.shape(tempdat))
-			tempdat = split(tempdat,0.2*np.sqrt(len(scope)))
-			print(np.shape(tempdat))
-			s = sumNode()
-			arr = []
-			for i in range(0,len(tempdat)):
-				if(len(tempdat[i])>=(len(scope))):
-					arr.append(len(tempdat[i]))
-					s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
+			trig = 0
+			cons = 1
+			while(trig==0):
+				tempdat = split(tempdat,cons*0.2*np.sqrt(len(scope)))
+				print(np.shape(tempdat))
+				s = sumNode()
+				arr = []
+				cons = cons + 1
+				for i in range(0,len(tempdat)):
+					if(len(tempdat[i])>=(len(scope))):
+						trig = 1
+						arr.append(len(tempdat[i]))
+						s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
 			s.setwts(arr)
+			print("wts are",arr)
 			return s
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
@@ -115,6 +121,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 	s = sumNode()
 	s.setwts(effwts)
+	print(effwts)
 
 	print(Dec)
 
@@ -140,10 +147,10 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 #test
 
-s = set(xrange(4))
+s = set(xrange(7))
 
-ab = np.genfromtxt('IR.data',delimiter=",")
-ab = ab[:,:4]
+ab = np.genfromtxt('AB.dat',delimiter=",")
+ab = ab[:,1:]
 
 gmix = mixture.GMM(n_components=4, covariance_type='diag')
 gmix.fit(ab[:150,:])
