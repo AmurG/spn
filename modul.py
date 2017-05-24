@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hcluster
 from nodes import *
 from data import *
+from sklearn import mixture
+import matplotlib.pyplot as plt
 
 k = 7
 
@@ -49,18 +51,20 @@ def returnarr(arr,scope):
 def induce(tempdat,maxsize,scope,indsize,flag):
 	print("inducecall")
 	print(scope)
+	full = len(tempdat)
 	if (flag==0):
-		print(np.shape(tempdat))
-		tempdat = split(tempdat,0.7*np.sqrt(len(scope)))
-		print(np.shape(tempdat))
-		s = sumNode()
-		arr = np.zeros(len(tempdat))
-		for i in range(0,len(tempdat)):
-			arr[i] = len(tempdat[i])
-			print(arr)
-			s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
-		s.setwts(arr)
-		return s	
+		if (full>=3*len(scope)):
+			print(np.shape(tempdat))
+			tempdat = split(tempdat,0.3*np.sqrt(len(scope)))
+			print(np.shape(tempdat))
+			s = sumNode()
+			arr = []
+			for i in range(0,len(tempdat)):
+				if(len(tempdat[i])>=(3*len(scope))):
+					arr.append(len(tempdat[i]))
+					s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
+			s.setwts(arr)
+			return s
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
 	for i in range(0,len(tempdat)):
@@ -94,7 +98,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 		sum = 0
 		for j in range(0,len(Order)-i):
 			sum = sum - Order[j,2]
-		wts[i] = sum
+		wts[i] = sum 
 		idx = int(Order[len(Order)-i-1,0])
 		idx2 = int(Order[len(Order)-i-1,1])
 		T.remove_edge(idx,idx2)
@@ -128,25 +132,35 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 				l.create(tempmean,tempcov)
 				p.children.append(l)
 			else:
-				p.children.append(induce(tempdat,maxsize-1,sub,indsize,1))
+				p.children.append(induce(tempdat,maxsize-1,sub,indsize,0))
 		
 
 	return s
 
 #test
 
-s = set(xrange(k))
+s = set(xrange(4))
 
-Tst = induce(operdat,5,s,3,0)
+ab = np.genfromtxt('IR.data',delimiter=",")
+ab = ab[:,:4]
 
-print(Tst)
+gmix = mixture.GMM(n_components=4, covariance_type='diag')
+gmix.fit(ab[:150,:])
 
-Tst.passon(mean)
-print(Tst.retval())
-print(Tst.wts)
+Tst = induce(ab[:150,:],4,s,3,0)
 
-ref = mn(mean=mean,cov=covmat)
-print(ref.logpdf(mean))
+sum = 0
 
+plot1 = np.zeros(150)
 
+for i in range(0,150):
+	Tst.passon(ab[i])
+	sum = sum + Tst.retval()
+	plot1[i] = Tst.retval()
+
+print(sum/150)
+print(np.mean((gmix.score(ab[0:150,:]))))
+plt.plot(plot1)
+plt.plot(gmix.score(ab[0:150,:]))
+plt.show()
 

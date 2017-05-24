@@ -34,6 +34,10 @@ print(np.shape(data))
 print(np.shape(data[0]))
 print(np.shape(np.asarray(data[0])))
 
+ab = np.genfromtxt('AB.dat',delimiter=",")
+print(ab)
+print(np.shape(ab))
+
 
 
 
