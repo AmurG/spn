@@ -52,15 +52,16 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	print("inducecall")
 	print(scope)
 	full = len(tempdat)
+	print(full)
 	if (flag==0):
-		if (full>=3*len(scope)):
+		if (full>=5*len(scope)):
 			print(np.shape(tempdat))
-			tempdat = split(tempdat,0.3*np.sqrt(len(scope)))
+			tempdat = split(tempdat,0.2*np.sqrt(len(scope)))
 			print(np.shape(tempdat))
 			s = sumNode()
 			arr = []
 			for i in range(0,len(tempdat)):
-				if(len(tempdat[i])>=(3*len(scope))):
+				if(len(tempdat[i])>=(len(scope))):
 					arr.append(len(tempdat[i]))
 					s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
 			s.setwts(arr)
@@ -98,7 +99,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 		sum = 0
 		for j in range(0,len(Order)-i):
 			sum = sum - Order[j,2]
-		wts[i] = sum 
+		wts[i] = sum - np.log(k-i) + np.log(k)
 		idx = int(Order[len(Order)-i-1,0])
 		idx2 = int(Order[len(Order)-i-1,1])
 		T.remove_edge(idx,idx2)
@@ -158,6 +159,7 @@ for i in range(0,150):
 	sum = sum + Tst.retval()
 	plot1[i] = Tst.retval()
 
+print(Tst.wts)
 print(sum/150)
 print(np.mean((gmix.score(ab[0:150,:]))))
 plt.plot(plot1)
