@@ -9,6 +9,7 @@ from nodes import *
 from data import *
 from sklearn import mixture
 import matplotlib.pyplot as plt
+from scipy.cluster.vq import vq, kmeans, whiten
 
 k = 7
 
@@ -53,19 +54,20 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	print(scope)
 	full = len(tempdat)
 	print(full)
+
 	if (flag==0):
-		if (full>=5*len(scope)):
+		if (full>=20*len(scope)):
 			trig = 0
 			cons = 1
 			while(cons==1):
 				#print("shapetest",np.shape(tempdat))
-				tempdat2 = split(tempdat,cons*20*np.sqrt(len(scope)))
+				tempdat2 = split(tempdat,10)
 				#print(np.shape(tempdat))
 				s = sumNode()
 				arr = []
 				cons = cons + 1
 				for i in range(0,len(tempdat2)):
-					if(len(tempdat2[i])>=(3*len(scope))):
+					if(len(tempdat2[i])>=(len(scope))):
 						trig = 1
 						arr.append(len(tempdat2[i]))
 						s.children.append(induce(np.asarray(tempdat2[i]),maxsize,scope,indsize,1))
@@ -147,15 +149,16 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 #test
 
-s = set(xrange(13))
+s = set(xrange(7))
 
-ab = np.genfromtxt('AI.dat',delimiter=",")
-ab = np.asarray(ab[:,1:14])
+ab = np.genfromtxt('AB.dat',delimiter=",")
+ab = np.asarray(ab[:,1:8])
+ab = whiten(ab)
 
 gmix = mixture.GMM(n_components=3, covariance_type='diag')
 gmix.fit(ab[:3000,:])
 
-Tst = induce(ab[:3000,:],10,s,6,0)
+Tst = induce(ab[:3000,:],4,s,2,0)
 
 sum = 0
 

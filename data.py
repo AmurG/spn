@@ -5,14 +5,15 @@ import networkx as nx
 from scipy.stats import multivariate_normal as mn
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hcluster
+from scipy.cluster.vq import vq, kmeans, whiten
 
 #gen = np.random.multivariate_normal(mean,cov,10)
 
 #print((gen))
 #print(np.shape((gen)))
 
-def split(arr,thresh):
-	clusters = hcluster.fclusterdata(arr, thresh, criterion="distance")
+def split(arr,k):
+	pholder,clusters = scipy.cluster.vq.kmeans2(arr,k)
 	print(clusters)
 	big = []
 	for i in range(0,len(set(clusters))):
