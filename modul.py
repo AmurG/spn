@@ -55,20 +55,20 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	print(full)
 	if (flag==0):
 		if (full>=5*len(scope)):
-			print(np.shape(tempdat))
 			trig = 0
 			cons = 1
-			while(trig==0):
-				tempdat = split(tempdat,cons*0.2*np.sqrt(len(scope)))
-				print(np.shape(tempdat))
+			while(cons==1):
+				#print("shapetest",np.shape(tempdat))
+				tempdat2 = split(tempdat,cons*20*np.sqrt(len(scope)))
+				#print(np.shape(tempdat))
 				s = sumNode()
 				arr = []
 				cons = cons + 1
-				for i in range(0,len(tempdat)):
-					if(len(tempdat[i])>=(len(scope))):
+				for i in range(0,len(tempdat2)):
+					if(len(tempdat2[i])>=(3*len(scope))):
 						trig = 1
-						arr.append(len(tempdat[i]))
-						s.children.append(induce(np.asarray(tempdat[i]),maxsize,scope,indsize,1))
+						arr.append(len(tempdat2[i]))
+						s.children.append(induce(np.asarray(tempdat2[i]),maxsize,scope,indsize,1))
 			s.setwts(arr)
 			print("wts are",arr)
 			return s
@@ -147,29 +147,29 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 #test
 
-s = set(xrange(7))
+s = set(xrange(13))
 
-ab = np.genfromtxt('AB.dat',delimiter=",")
-ab = ab[:,1:]
+ab = np.genfromtxt('AI.dat',delimiter=",")
+ab = np.asarray(ab[:,1:14])
 
-gmix = mixture.GMM(n_components=4, covariance_type='diag')
-gmix.fit(ab[:150,:])
+gmix = mixture.GMM(n_components=3, covariance_type='diag')
+gmix.fit(ab[:3000,:])
 
-Tst = induce(ab[:150,:],4,s,3,0)
+Tst = induce(ab[:3000,:],10,s,6,0)
 
 sum = 0
 
-plot1 = np.zeros(150)
+plot1 = np.zeros(1000)
 
-for i in range(0,150):
+for i in range(3000,4000):
 	Tst.passon(ab[i])
 	sum = sum + Tst.retval()
-	plot1[i] = Tst.retval()
+	plot1[i-3000] = Tst.retval()
 
 print(Tst.wts)
-print(sum/150)
-print(np.mean((gmix.score(ab[0:150,:]))))
+print(sum/1000)
+print(np.mean((gmix.score(ab[3000:4000,:]))))
 plt.plot(plot1)
-plt.plot(gmix.score(ab[0:150,:]))
+plt.plot(gmix.score(ab[3000:4000,:]))
 plt.show()
 
