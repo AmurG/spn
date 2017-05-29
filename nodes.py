@@ -22,6 +22,10 @@ class prodNode(Node):
 		self.value = Logval
 		return (self.value)
 
+	def update(self):
+		for i in self.children:
+			i.update()
+
 class sumNode(Node):
 	def __init__(self):
 		self.scope = []
@@ -47,6 +51,19 @@ class sumNode(Node):
 		self.value = np.log(float(Rawval)/(float(sum)+1e-11) + 1e-11)
 		return (self.value)
 
+	def update(self):
+		inf = -1
+		j = 0
+		for i in self.children:
+			if((np.exp(i.value))>inf):
+				inf = np.exp(i.value)
+				winnode = i
+				winidx = j
+			j = j+1
+		self.wts[winidx] = self.wts[winidx]+1
+		winnode.update()
+
+
 class leafNode(Node):
 	def __init__(self):
 		self.value = 0
@@ -63,7 +80,10 @@ class leafNode(Node):
 		self.setval(arr)
 
 	def retval(self):
-		return(self.value)	
+		return(self.value)
+	
+	def update(self):
+		return	
 
 
 

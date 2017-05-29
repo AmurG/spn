@@ -54,14 +54,14 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	print(scope)
 	full = len(tempdat)
 	print(full)
-
+	
 	if (flag==0):
-		if (full>=20*len(scope)):
+		if (full>=30*len(scope)):
 			trig = 0
 			cons = 1
 			while(cons==1):
 				#print("shapetest",np.shape(tempdat))
-				tempdat2 = split(tempdat,10)
+				tempdat2 = split(tempdat,4)
 				#print(np.shape(tempdat))
 				s = sumNode()
 				arr = []
@@ -74,6 +74,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 			s.setwts(arr)
 			print("wts are",arr)
 			return s
+	
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
 	for i in range(0,len(tempdat)):
@@ -149,30 +150,39 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 #test
 
-s = set(xrange(7))
+s = set(xrange(4))
 
-ab = np.genfromtxt('AB.dat',delimiter=",")
-ab = np.asarray(ab[:,1:8])
+ab = np.genfromtxt('QU.dat',delimiter=",")
+ab = np.asarray(ab[:,:4])
+print(ab[0])
 ab = whiten(ab)
+#ab = np.random.permutation(ab)
 
 gmix = mixture.GMM(n_components=3, covariance_type='diag')
-gmix.fit(ab[:3000,:])
+gmix.fit(ab[:800,:])
 
-Tst = induce(ab[:3000,:],4,s,2,0)
+Tst = induce(ab[:800,:],4,s,2,0)
+
+
+for i in range(0,1000):
+	idx = np.random.randint(0,800)
+	Tst.passon(ab[idx])
+	placeholder = Tst.retval()
+	Tst.update()
 
 sum = 0
 
-plot1 = np.zeros(1000)
+plot1 = np.zeros(200)
 
-for i in range(3000,4000):
+for i in range(800,1000):
 	Tst.passon(ab[i])
 	sum = sum + Tst.retval()
-	plot1[i-3000] = Tst.retval()
+	plot1[i-800] = Tst.retval()
 
 print(Tst.wts)
-print(sum/1000)
-print(np.mean((gmix.score(ab[3000:4000,:]))))
+print(sum/200)
+print(np.mean((gmix.score(ab[800:1000,:]))))
 plt.plot(plot1)
-plt.plot(gmix.score(ab[3000:4000,:]))
+plt.plot(gmix.score(ab[800:1000,:]))
 plt.show()
 
