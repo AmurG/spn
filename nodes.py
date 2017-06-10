@@ -125,16 +125,16 @@ class discNode(Node):
 
 	def passon(self,arr):
 		self.rec = submean(arr,self.scope)
-		self.value = pdfarr[bintodec(self.rec)]
+		self.value = self.arr[bintodec(self.rec)]
 
 	def retval(self):
 		return (self.value)
 
 	def update(self):
 		idx = bintodec(self.rec)
-		pdfarr[idx] = float(pdfarr[idx]) + float(1/self.counter)
+		self.arr[idx] = float(self.arr[idx]) + float(1/self.counter)
 		for i in range(0,self.size):
-			pdfarr[i] = float(pdfarr[i]/(1+float(1/self.counter)))
+			self.arr[i] = float(self.arr[i]/(1+float(1/self.counter)))
 		self.counter = self.counter+1
 		
 

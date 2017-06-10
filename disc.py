@@ -16,7 +16,7 @@ def infmat(mat,nvar):
 	return retmat
 
 def createpdf(mat,nsam,nvar):
-	length = np.rint(np.power(2,nvar))
+	length = int(np.rint(np.power(2,nvar)))
 	pdf = np.zeros(length)
 	for i in range(0,nsam):
 		idx = bintodec(mat[i,:])
@@ -25,9 +25,11 @@ def createpdf(mat,nsam,nvar):
 
 
 def induce(tempdat,maxsize,scope,indsize,flag):
+	full = len(tempdat)
+	'''
 	if (flag==0):
 		if (full>=30*len(scope)):
-			tempdat2 = split(tempdat,3)
+			tempdat2 = split(tempdat,8)
 			s = sumNode()
 			arr = []
 			for i in range(0,len(tempdat2)):
@@ -37,6 +39,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 			s.setwts(arr)
 			print("wts are",arr)
 			return s
+	'''
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
 	for i in range(0,len(tempdat)):
@@ -92,7 +95,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 			if (len(j)<=indsize):
 				l = discNode()
 				l.scope = sub
-				pdf = createpdf(tempdat[:,sub],len(tempdat),len(sub))
+				pdf = createpdf(tempdat[:,sorted(list(sub))],len(tempdat),len(sub))
 				l.create(pdf)
 				p.children.append(l)
 			else:
@@ -101,9 +104,30 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 	return s
 
+NLT = np.genfromtxt('NLTCS.txt',delimiter="	")
+nlt = NLT[:3000,:16]
+print(nlt[0])
 
+s = set(xrange(16))
 
+Tst = induce(nlt[:2000,:],8,s,4,0)
 
+for i in range(0,10000):
+	idx = np.random.randint(0,2000)
+	Tst.passon(nlt[idx])
+	placeholder = Tst.retval()
+	Tst.update()
 
+sum = 0
+
+plot1 = np.zeros(1000)
+
+for i in range(2000,3000):
+	Tst.passon(nlt[i])
+	sum = sum + Tst.retval()
+	plot1[i-2000] = Tst.retval()
+
+print(Tst.wts)
+print(sum/1000)
 
 
