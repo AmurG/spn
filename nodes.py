@@ -50,9 +50,9 @@ class sumNode(Node):
 			self.wts.append(i)
 
 	def retval(self):
-		Rawval = 0
+		Rawval = 0.0
 		j = 0
-		sum = 0
+		sum = 0.0
 		for i in self.children:
 			Rawval = Rawval + float((self.wts[j])*(np.exp(i.retval())))
 			sum = sum + self.wts[j]
@@ -117,7 +117,7 @@ class discNode(Node):
 		self.scope = []
 		self.arr = []
 		self.size = 0
-		self.counter = 5
+		self.counter = 5.0
 
 	def create(self,pdfarr):
 		self.arr = pdfarr
@@ -125,16 +125,16 @@ class discNode(Node):
 
 	def passon(self,arr):
 		self.rec = submean(arr,self.scope)
-		self.value = self.arr[bintodec(self.rec)]
+		self.value = np.log(self.arr[bintodec(self.rec)]+1e-11)
 
 	def retval(self):
 		return (self.value)
 
 	def update(self):
 		idx = bintodec(self.rec)
-		self.arr[idx] = float(self.arr[idx]) + float(1/self.counter)
+		self.arr[idx] = float(self.arr[idx]) + float((1.0)/float(self.counter))
 		for i in range(0,self.size):
-			self.arr[i] = float(self.arr[i]/(1+float(1/self.counter)))
+			self.arr[i] = float(float(self.arr[i])/(1.0+float((1.0)/float(self.counter))))
 		self.counter = self.counter+1
 		
 

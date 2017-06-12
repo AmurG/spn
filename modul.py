@@ -136,7 +136,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	return s
 
 #test
-'''
+
 s = set(xrange(4))
 
 ab = np.genfromtxt('QU.dat',delimiter=",")
@@ -172,4 +172,4 @@ print(np.mean((gmix.score(ab[1600:2000,:]))))
 plt.plot(plot1)
 plt.plot(gmix.score(ab[1600:2000,:]))
 plt.show()
-'''
+

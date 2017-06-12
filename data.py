@@ -13,7 +13,7 @@ from scipy.cluster.vq import vq, kmeans, whiten
 #print(np.shape((gen)))
 
 def split(arr,k):
-	pholder,clusters = scipy.cluster.vq.kmeans2(arr,k)
+	pholder,clusters = scipy.cluster.vq.kmeans2(arr,k,minit='points')
 	print(clusters)
 	big = []
 	for i in range(0,len(set(clusters))):

@@ -19,14 +19,18 @@ def createpdf(mat,nsam,nvar):
 	length = int(np.rint(np.power(2,nvar)))
 	pdf = np.zeros(length)
 	for i in range(0,nsam):
+		print(mat[i,:])
 		idx = bintodec(mat[i,:])
-		pdf[idx] = pdf[idx] + float(1/nsam)
+		print(idx)
+		pdf[idx] = pdf[idx] + float((0.5)/nsam)
+	for i in range(0,length):
+		pdf[i] = pdf[i] + float(0.5/float(length))
 	return pdf
 
 
 def induce(tempdat,maxsize,scope,indsize,flag):
 	full = len(tempdat)
-	'''
+	
 	if (flag==0):
 		if (full>=30*len(scope)):
 			tempdat2 = split(tempdat,8)
@@ -39,7 +43,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 			s.setwts(arr)
 			print("wts are",arr)
 			return s
-	'''
+	
 	effdat = np.zeros(len(tempdat)*len(scope))
 	effdat = np.reshape(effdat,(len(tempdat),len(scope)))
 	for i in range(0,len(tempdat)):
