@@ -11,36 +11,6 @@ from sklearn import mixture
 import matplotlib.pyplot as plt
 from scipy.cluster.vq import vq, kmeans, whiten
 
-k = 7
-
-cov = np.zeros(k*k)
-cov = np.reshape(cov,(k,k))
-
-for i in range(0,k):
-	for j in range(0,k):
-		if(j<i):
-			cov[i,j] = cov[j,i]			
-		if(i==j):
-			cov[i,j] = 1
-		if(j>i):
-			cov[i,j] = np.random.uniform(0,1)
-
-
-cov = np.matmul(cov,np.transpose(cov))
-
-print(cov)
-
-mean = np.random.uniform(-1,1,k)
-
-gen = np.random.multivariate_normal(mean,cov,1000)
-
-data = np.transpose(np.asarray(gen))
-
-operdat = np.transpose(data)
-
-corrmat = np.corrcoef(data)
-covmat = np.cov(data)
-
 def returnarr(arr,scope):
 	q = []
 	te = list(scope)
@@ -53,7 +23,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	full = len(tempdat)
 	if (flag==0):
 		if (full>=30*len(scope)):
-			tempdat2 = split(tempdat,3)
+			tempdat2 = split(tempdat,7)
 			s = sumNode()
 			arr = []
 			for i in range(0,len(tempdat2)):
@@ -137,10 +107,10 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 #test
 
-s = set(xrange(4))
+s = set(xrange(8))
 
-ab = np.genfromtxt('QU.dat',delimiter=",")
-ab = np.asarray(ab[:,:4])
+ab = np.genfromtxt('../AB.dat',delimiter=",")
+ab = np.asarray(ab[:,1:])
 print(ab[0])
 ab = whiten(ab)
 ab = np.random.permutation(ab)
@@ -148,7 +118,7 @@ ab = np.random.permutation(ab)
 gmix = mixture.GMM(n_components=3, covariance_type='full')
 gmix.fit(ab[:1600,:])
 
-Tst = induce(ab[:1600,:],3,s,2,0)
+Tst = induce(ab[:1600,:],6,s,4,0)
 
 
 for i in range(0,7000):

@@ -138,32 +138,4 @@ class discNode(Node):
 		self.counter = self.counter+1
 		
 
-#test
-
-'''
-t = leafNode()
-mean = [0, 0]
-cov = [[1, 0],[0,1]]
-t.create(mean,cov)
-
-p = prodNode()
-p.children.append(t)
-
-
-t = leafNode()
-mean = [1, 0]
-cov = [[1, -0.5],[-0.5,1]]
-t.create(mean,cov)
-
-p.children.append(t)
-
-s = sumNode()
-s.setwts([1])
-s.children.append(p)
-
-s.passon([1, 0])
-print(s.retval())
-'''
-print(bintodec([1,1,1,1]))
-
 

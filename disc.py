@@ -22,9 +22,9 @@ def createpdf(mat,nsam,nvar):
 		print(mat[i,:])
 		idx = bintodec(mat[i,:])
 		print(idx)
-		pdf[idx] = pdf[idx] + float((0.5)/nsam)
+		pdf[idx] = pdf[idx] + float((0.8)/nsam)
 	for i in range(0,length):
-		pdf[i] = pdf[i] + float(0.5/float(length))
+		pdf[i] = pdf[i] + float(0.2/float(length))
 	return pdf
 
 
@@ -108,7 +108,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 	return s
 
-NLT = np.genfromtxt('NLTCS.txt',delimiter="	")
+NLT = np.genfromtxt('../NLTCS.txt',delimiter="	")
 nlt = NLT[:3000,:16]
 print(nlt[0])
 
