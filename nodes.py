@@ -2,6 +2,8 @@ import numpy as np
 from data import *
 from scipy.stats import multivariate_normal as mn
 
+globalarr = []
+
 def bintodec(arr):
 	wt = np.rint(np.power(2,len(arr)-1))
 	cnt = 0
@@ -19,9 +21,9 @@ class Node:
 		self.value = 0
 		self.det = []
 	
-	def passon(self,arr):
+	def passon(self):
 		for i in self.children:
-			i.passon(arr)		
+			i.passon()		
 
 class prodNode(Node):
 	def retval(self):
@@ -88,8 +90,8 @@ class leafNode(Node):
 		self.mean = mean
 		self.cov = cov
 
-	def passon(self,arr):
-		self.rec = submean(arr,self.scope)
+	def passon(self):
+		self.rec = submean(globalarr,self.scope)
 		self.value = self.pdf.logpdf(self.rec)
 
 	def retval(self):

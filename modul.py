@@ -5,11 +5,13 @@ import networkx as nx
 from scipy.stats import multivariate_normal as mn
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hcluster
+import nodes as nd
 from nodes import *
 from data import *
 from sklearn import mixture
 import matplotlib.pyplot as plt
 from scipy.cluster.vq import vq, kmeans, whiten
+from time import time
 
 def returnarr(arr,scope):
 	q = []
@@ -122,17 +124,21 @@ Tst = induce(ab[:1600,:],6,s,4,0)
 
 
 for i in range(0,7000):
+	t = time()
 	idx = np.random.randint(0,1600)
-	Tst.passon(ab[idx])
+	nd.globalarr = ab[idx]
+	Tst.passon()
 	placeholder = Tst.retval()
 	Tst.update()
+	print(time()-t)
 
 sum = 0
 
 plot1 = np.zeros(400)
 
 for i in range(1600,2000):
-	Tst.passon(ab[i])
+	nd.globalarr = ab[i]
+	Tst.passon()
 	sum = sum + Tst.retval()
 	plot1[i-1600] = Tst.retval()
 
@@ -142,4 +148,6 @@ print(np.mean((gmix.score(ab[1600:2000,:]))))
 plt.plot(plot1)
 plt.plot(gmix.score(ab[1600:2000,:]))
 plt.show()
+
+
 
