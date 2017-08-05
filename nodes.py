@@ -4,6 +4,10 @@ from scipy.stats import multivariate_normal as mn
 
 globalarr = []
 
+def convert(tag):
+	holder = ['PRD','SUM','BINNODE']
+	return holder[tag]
+
 def bintodec(arr):
 	wt = np.rint(np.power(2,len(arr)-1))
 	cnt = 0
@@ -20,10 +24,17 @@ class Node:
 		self.parent = None
 		self.value = 0
 		self.det = []
+		self.kind = 0
+		self.createid = 0
 	
 	def passon(self):
 		for i in self.children:
-			i.passon()		
+			i.passon()
+
+	def normalize(self):
+		for j in self.children:
+			j.normalize()
+
 
 class prodNode(Node):
 	def retval(self):
@@ -45,11 +56,21 @@ class sumNode(Node):
 		self.parent = None
 		self.value = 0
 		self.det = []
+		self.kind = 1
 
 	
 	def setwts(self,arr):
 		for i in arr:
 			self.wts.append(i)
+
+	def normalize(self):
+		sum = 1e-11
+		for i in range(0,len(self.wts)):
+			sum = sum + self.wts[i]
+		for i in range(0,len(self.wts)):
+			self.wts[i] = self.wts[i]/sum
+		for j in self.children:
+			j.normalize()
 
 	def retval(self):
 		Rawval = 0.0
@@ -65,6 +86,7 @@ class sumNode(Node):
 	def update(self):
 		inf = -10000000000
 		j = 0
+		winidx = 0
 		for i in self.children:
 			if((i.value)>inf):
 				inf = (i.value)
@@ -83,7 +105,12 @@ class leafNode(Node):
 		self.cov = []
 		self.rec = []
 		self.scope = []
-		self.counter = 5
+		self.counter = 5.0
+		self.kind = 2
+
+	def normalize(self):
+		return	
+
 		
 	def create(self,mean,cov):
 		self.pdf = mn(mean=mean,cov=cov)
@@ -115,18 +142,22 @@ class discNode(Node):
 	def __init__(self):
 		self.value = 0
 		self.flag = 1
+		self.kind = 2
 		self.rec = []
 		self.scope = []
 		self.arr = []
 		self.size = 0
-		self.counter = 5.0
+		self.counter = 10.0
+
+	def normalize(self):
+		return	
 
 	def create(self,pdfarr):
 		self.arr = pdfarr
 		self.size = len(pdfarr)
 
-	def passon(self,arr):
-		self.rec = submean(arr,self.scope)
+	def passon(self):
+		self.rec = submean(globalarr,self.scope)
 		self.value = np.log(self.arr[bintodec(self.rec)]+1e-11)
 
 	def retval(self):

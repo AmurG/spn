@@ -28,7 +28,7 @@ def submat(mat,subset):
 	for i in subset:
 		z = 0
 		for j in subset:
-			ret[w,z] = mat[i,j]
+			ret[w,z] = mat[i,j] 
 			z=z+1
 		w=w+1
 	return ret
