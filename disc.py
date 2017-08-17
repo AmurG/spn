@@ -6,6 +6,10 @@ from modul import returnarr
 from data import *
 from sklearn.metrics import adjusted_mutual_info_score as ami
 from time import time
+from sklearn import metrics
+from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.cluster import KMeans
+
 
 Leafcount = 0
 
@@ -17,7 +21,9 @@ def infmat(mat,nvar):
 			if (i>j):
 				retmat[i][j] = retmat[j][i]
 			else:
-				retmat[i][j] = (float(np.dot(mat[:,i],mat[:,j])*np.dot(mat[:,i],mat[:,j]) + 1e-11))/(float(np.dot(mat[:,i],mat[:,i])*np.dot(mat[:,j],mat[:,j]) + 1e-5))
+				retmat[i][j] = (float(np.dot(mat[:,i],mat[:,j])*np.dot(mat[:,i],mat[:,j]) + 1e-4))/(float(np.dot(mat[:,i],mat[:,i])*np.dot(mat[:,j],mat[:,j]) + 1e-2))
+				#temp = np.corrcoef(retmat[:,i],retmat[:,j])
+				#retmat[i][j] = abs(temp[0][1])
 	return retmat
 
 def createpdf(mat,nsam,nvar):
@@ -27,25 +33,25 @@ def createpdf(mat,nsam,nvar):
 		#print(mat[i,:])
 		idx = bintodec(mat[i,:])
 		#print(idx)
-		pdf[idx] = pdf[idx] + float((0.98)/nsam)
+		pdf[idx] = pdf[idx] + float((0.95)/nsam)
 	for i in range(0,length):
-		pdf[i] = pdf[i] + float(0.02/float(length))
+		pdf[i] = pdf[i] + float(0.05/float(length))
 	return pdf
 
 
-def induce(tempdat,maxsize,scope,indsize,flag):
+def induce(tempdat,maxsize,scope,indsize,flag,maxcount):
 	full = len(tempdat)
 	
 	if (flag==0):
-		if (full>=1000*len(scope)):
-			tempdat2 = split(tempdat,8)
+		if (full>=4000):
+			tempdat2 = split(tempdat,3)
 			s = sumNode()
 			arr = []
 			cnt = 0
 			for i in range(0,len(tempdat2)):
-				if(len(tempdat2[i])>=(len(scope))):
+				if(len(tempdat2[i])>=(2*len(scope))):
 					arr.append(len(tempdat2[i]))
-					s.children.append(induce(np.asarray(tempdat2[i]),maxsize,scope,indsize,1))
+					s.children.append(induce(np.asarray(tempdat2[i]),maxsize,scope,indsize,1,maxcount))
 					cnt = cnt + 1
 			
 			for i in range(0,cnt):
@@ -77,7 +83,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	T=nx.minimum_spanning_tree(G)
 	Order = np.asarray(T.edges(data='weight'))
 	k = len(Order)
-	wts = np.zeros(k)
+	#wts = np.zeros(k)
 	Order = Order[Order[:,2].argsort()]
 	Dec = []
 	Gc = max(nx.connected_component_subgraphs(T), key=len)
@@ -85,22 +91,27 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 	if(n<=maxsize):
 		Dec.append(list(nx.connected_components(T)))
 
+	count = 0
+	
 	for i in range(0,k):
-		sum = 0
-		for j in range(0,len(Order)-i):
-			sum = sum - Order[j,2]
-		wts[i] = sum 
+		if(count>maxcount):
+			break
+		#sum = 0
+		#for j in range(0,len(Order)-i):
+		#	sum = sum - Order[j,2]
+		#wts[i] = sum 
 		idx = int(Order[len(Order)-i-1,0])
 		idx2 = int(Order[len(Order)-i-1,1])
 		T.remove_edge(idx,idx2)
 		Gc = max(nx.connected_component_subgraphs(T), key=len)
 		n = Gc.number_of_nodes()
-		if(n<=maxsize):
+		if((n<=maxsize)and(count<=maxcount)):
 			Dec.append(list(nx.connected_components(T)))
+			count = count + 1
 
 	effwts = np.zeros(len(Dec))
 	for i in range(0,len(Dec)):
-		effwts[i] = wts[i+k-len(Dec)]
+		effwts[i] = 1./len(Dec)
 
 	s = sumNode()
 	s.setwts(effwts)
@@ -123,7 +134,7 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 					l.create(pdf)
 					p.children.append(l)
 				else:
-					p.children.append(induce(tempdat,maxsize/4,sub,indsize,0))
+					p.children.append(induce(tempdat,maxsize/2,sub,indsize,0,maxcount))
 	
 	if(len(scope)<=indsize):
 		l = discNode()
@@ -136,13 +147,23 @@ def induce(tempdat,maxsize,scope,indsize,flag):
 
 	return s
 
-NLT = np.genfromtxt('../plants.data',delimiter=",")
-nlt = NLT[:17000,:69]
+NLT = np.genfromtxt('../retail.data',delimiter=",")
+
+print(np.shape(NLT))
+nlt = NLT[:22000,:135]
 print(nlt[0])
 
-s = set(xrange(69))
+'''
+for i in range(2,10):
+	clusterer = KMeans(n_clusters=i, random_state=10).fit(nlt)
+	cluster_labels = clusterer.labels_
+	print(metrics.calinski_harabaz_score(nlt, cluster_labels))
+'''
 
-Tst = induce(nlt[:17000,:69],16,s,1,0)
+
+s = set(xrange(135))
+
+Tst = induce(nlt[:22000,:135],30,s,1,0,4)
 
 Tst.normalize()
 
@@ -256,9 +277,7 @@ def edgtoarr(givennode,arr1,arr2):
 		return	
 
 pushtoarr(Tst,nodes,leaves)
-'''
 
-'''
 edgtoarr(Tst,sumedges,prodedges)
 
 print(sumedges[:100])
@@ -271,7 +290,8 @@ print(len(prodedges))
 print(len(nodes))
 print(len(leaves))
 '''
-file = open('./test3.txt', 'w')
+
+file = open('./retcheck1.txt', 'w')
 file.write('##NODES##\n')
 for i in range(0,len(nodearr)/3):
 	call = nodearr[3*i]
@@ -300,12 +320,12 @@ else:
 
 file.close()
 
-
-
 '''
-for i in range(0,16000):
+
+
+for i in range(0,22000):
 	t = time()
-	idx = np.random.randint(0,16000)
+	idx = np.random.randint(0,22000)
 	nd.globalarr = nlt[idx]
 	Tst.passon()
 	print("t1",time()-t)
@@ -318,12 +338,12 @@ for i in range(0,16000):
 
 sum = 0
 
-plot1 = np.zeros(3000)
+plot1 = np.zeros(2900)
 
-nlt = np.genfromtxt('../nltcs2.data',delimiter=",")
-nlt = nlt[:3000,:16]
+nlt = np.genfromtxt('../retail2.data',delimiter=",")
+nlt = nlt[:2900,:135]
 
-for i in range(0,3000):
+for i in range(0,2900):
 	nd.globalarr = nlt[i]
 	Tst.passon()
 	print(Tst.retval())
@@ -331,6 +351,6 @@ for i in range(0,3000):
 	plot1[i] = Tst.retval()
 
 print(Tst.wts)
-print(sum/3000)
+print(sum/2900)
 '''
 

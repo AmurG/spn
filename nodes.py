@@ -84,7 +84,7 @@ class sumNode(Node):
 		return (self.value)
 
 	def update(self):
-		inf = -10000000000
+		inf = -1e19
 		j = 0
 		winidx = 0
 		for i in self.children:
